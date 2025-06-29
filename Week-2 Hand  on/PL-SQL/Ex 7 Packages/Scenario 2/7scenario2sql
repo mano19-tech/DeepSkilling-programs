@@ -1,0 +1,79 @@
+CREATE OR REPLACE PACKAGE EmployeeManagement AS
+    PROCEDURE HireEmployee(p_id NUMBER, p_name VARCHAR2, p_salary NUMBER);
+    PROCEDURE UpdateEmployee(p_id NUMBER, p_salary NUMBER);
+    FUNCTION CalculateAnnualSalary(p_id NUMBER) RETURN NUMBER;
+END EmployeeManagement;
+/
+CREATE OR REPLACE PACKAGE BODY EmployeeManagement AS
+
+    PROCEDURE HireEmployee(p_id NUMBER, p_name VARCHAR2, p_salary NUMBER) IS
+    BEGIN
+        INSERT INTO Employees (EmployeeID, Name, Salary)
+        VALUES (p_id, p_name, p_salary);
+    END HireEmployee;
+
+    PROCEDURE UpdateEmployee(p_id NUMBER, p_salary NUMBER) IS
+    BEGIN
+        UPDATE Employees
+        SET Salary = p_salary
+        WHERE EmployeeID = p_id;
+    END UpdateEmployee;
+
+    FUNCTION CalculateAnnualSalary(p_id NUMBER) RETURN NUMBER IS
+        v_salary NUMBER;
+    BEGIN
+        SELECT Salary INTO v_salary
+        FROM Employees
+        WHERE EmployeeID = p_id;
+
+        RETURN v_salary * 12;
+    END CalculateAnnualSalary;
+
+END EmployeeManagement;
+/
+-- Hire a new employee
+BEGIN
+    EmployeeManagement.HireEmployee(1, 'Aditi Singh', 45000);
+END;
+/
+
+-- Update employee salary
+BEGIN
+    EmployeeManagement.UpdateEmployee(1, 50000);
+END;
+/
+
+-- Calculate annual salary
+SET SERVEROUTPUT ON;
+DECLARE
+    annual NUMBER;
+BEGIN
+    annual := EmployeeManagement.CalculateAnnualSalary(1);
+    DBMS_OUTPUT.PUT_LINE('Annual Salary: ' || annual);
+END;
+/
+
+
+-- Hire a new employee
+BEGIN
+    EmployeeManagement.HireEmployee(1, 'Ritish', 45000);
+END;
+/
+
+-- Update employee salary
+BEGIN
+    EmployeeManagement.UpdateEmployee(1, 50000);
+END;
+/
+
+-- Calculate annual salary
+SET SERVEROUTPUT ON;
+DECLARE
+    annual NUMBER;
+BEGIN
+    annual := EmployeeManagement.CalculateAnnualSalary(1);
+    DBMS_OUTPUT.PUT_LINE('Annual Salary: ' || annual);
+END;
+/
+
+

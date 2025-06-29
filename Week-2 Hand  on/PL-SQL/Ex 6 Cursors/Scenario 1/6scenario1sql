@@ -1,0 +1,94 @@
+SET SERVEROUTPUT ON;
+
+CREATE TABLE Customers (
+    CustomerID NUMBER PRIMARY KEY,
+    Name VARCHAR2(50)
+);
+
+CREATE TABLE Accounts (
+    AccountID NUMBER PRIMARY KEY,
+    CustomerID NUMBER REFERENCES Customers(CustomerID),
+    Balance NUMBER(10,2)
+);
+
+CREATE TABLE Transactions (
+    TransactionID NUMBER PRIMARY KEY,
+    CustomerID NUMBER REFERENCES Customers(CustomerID),
+    Amount NUMBER(10,2),
+    Type VARCHAR2(20),
+    TransactionDate DATE
+);
+
+CREATE TABLE Loans (
+    LoanID NUMBER PRIMARY KEY,
+    CustomerID NUMBER REFERENCES Customers(CustomerID),
+    LoanAmount NUMBER(10,2),
+    InterestRate NUMBER(5,2)
+);
+
+
+-- Insert into Customers
+INSERT INTO Customers (CustomerID, Name) VALUES (1, 'Guru');
+INSERT INTO Customers (CustomerID, Name) VALUES (2, 'Shabi');
+
+-- Insert into Accounts
+INSERT INTO Accounts (AccountID, CustomerID, Balance) VALUES (101, 1, 15000);
+INSERT INTO Accounts (AccountID, CustomerID, Balance) VALUES (102, 2, 25000);
+
+INSERT INTO Transactions (TransactionID, CustomerID, Amount, Type, TransactionDate)
+VALUES (201, 1, 2000, 'DEPOSIT', SYSDATE);
+
+INSERT INTO Transactions (TransactionID, CustomerID, Amount, Type, TransactionDate)
+VALUES (202, 1, 500, 'WITHDRAWAL', SYSDATE);
+
+INSERT INTO Transactions (TransactionID, CustomerID, Amount, Type, TransactionDate)
+VALUES (203, 2, 3000, 'DEPOSIT', SYSDATE);
+
+
+INSERT INTO Loans (LoanID, CustomerID, LoanAmount, InterestRate)
+VALUES (301, 1, 120000, 6.5);
+
+INSERT INTO Loans (LoanID, CustomerID, LoanAmount, InterestRate)
+VALUES (302, 2, 80000, 7.0);
+
+
+COMMIT;
+
+SELECT table_name FROM user_tables WHERE table_name = 'TRANSACTIONS'; -- or other table name
+
+
+
+DECLARE
+    -- Cursor to fetch current month's transactions
+    CURSOR GenerateMonthlyStatements IS
+        SELECT CustomerID, TransactionID, Amount, Type, TransactionDate
+        FROM Transactions
+        WHERE TO_CHAR(TransactionDate, 'MMYYYY') = TO_CHAR(SYSDATE, 'MMYYYY')
+        ORDER BY CustomerID;
+
+    -- Variables to hold each record from the cursor
+    v_CustomerID      Transactions.CustomerID%TYPE;
+    v_TransactionID   Transactions.TransactionID%TYPE;
+    v_Amount          Transactions.Amount%TYPE;
+    v_Type            Transactions.Type%TYPE;
+    v_TransDate       Transactions.TransactionDate%TYPE;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('--- Monthly Transaction Statement ---');
+
+    OPEN GenerateMonthlyStatements;
+    LOOP
+        FETCH GenerateMonthlyStatements INTO 
+            v_CustomerID, v_TransactionID, v_Amount, v_Type, v_TransDate;
+        EXIT WHEN GenerateMonthlyStatements%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('Customer ID     : ' || v_CustomerID);
+        DBMS_OUTPUT.PUT_LINE('Transaction ID  : ' || v_TransactionID);
+        DBMS_OUTPUT.PUT_LINE('Amount          : ' || v_Amount);
+        DBMS_OUTPUT.PUT_LINE('Type            : ' || v_Type);
+        DBMS_OUTPUT.PUT_LINE('Date            : ' || TO_CHAR(v_TransDate, 'DD-MON-YYYY'));
+        DBMS_OUTPUT.PUT_LINE('-------------------------------------');
+    END LOOP;
+    CLOSE GenerateMonthlyStatements;
+END;
+/
+

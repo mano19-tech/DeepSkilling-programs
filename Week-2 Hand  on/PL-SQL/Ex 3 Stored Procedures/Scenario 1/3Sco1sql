@@ -1,0 +1,33 @@
+SET SERVEROUTPUT ON;
+
+DROP TABLE Accounts;
+
+CREATE TABLE Accounts (
+    AccountID   NUMBER PRIMARY KEY,
+    CustomerID  NUMBER,
+    AccountType VARCHAR2(20),
+    Balance     NUMBER(10,2)
+);
+
+
+CREATE OR REPLACE PROCEDURE ProcessMonthlyInterest IS
+BEGIN
+    UPDATE Accounts
+    SET Balance = Balance * 1.01
+    WHERE AccountType = 'Savings';
+    COMMIT;
+END;
+/
+
+BEGIN
+    ProcessMonthlyInterest;
+END;
+/
+
+
+INSERT INTO Accounts VALUES (101, 1, 'Savings', 20000);
+INSERT INTO Accounts VALUES (102, 2, 'Savings', 12000);
+INSERT INTO Accounts VALUES (103, 3, 'Current', 30000);
+COMMIT;
+SELECT * FROM Accounts;
+

@@ -1,0 +1,36 @@
+SET SERVEROUTPUT ON;
+
+DROP TABLE Employees;
+
+CREATE TABLE Employees (
+    EmployeeID    NUMBER PRIMARY KEY,
+    Name          VARCHAR2(50),
+    DepartmentID  NUMBER,
+    Salary        NUMBER(10,2)
+);
+
+INSERT INTO Employees VALUES (1, 'SHABI', 10, 50000);
+INSERT INTO Employees VALUES (2, 'ANANDHA', 15, 60000);
+INSERT INTO Employees VALUES (3, 'VISHVA', 20, 55000);
+COMMIT;
+
+CREATE OR REPLACE PROCEDURE UpdateEmployeeBonus (
+    p_DepartmentID IN NUMBER,
+    p_BonusPercent IN NUMBER
+) IS
+BEGIN
+    UPDATE Employees
+    SET Salary = Salary + (Salary * p_BonusPercent / 100)
+    WHERE DepartmentID = p_DepartmentID;
+
+    COMMIT;
+END;
+/
+
+BEGIN
+    UpdateEmployeeBonus(10, 10); -- Add 10% bonus to Dept 10
+END;
+/
+
+SELECT * FROM Employees;
+

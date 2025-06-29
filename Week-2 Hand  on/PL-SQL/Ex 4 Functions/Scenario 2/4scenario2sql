@@ -1,0 +1,28 @@
+
+CREATE OR REPLACE FUNCTION CalculateMonthlyInstallment (
+    loanAmount       NUMBER,
+    annualInterest   NUMBER,
+    loanDurationYears NUMBER
+)
+RETURN NUMBER
+IS
+    r NUMBER; -- Monthly interest rate
+    n NUMBER; -- Total number of months
+    installment NUMBER;
+BEGIN
+    r := annualInterest / 12 / 100;
+    n := loanDurationYears * 12;
+    
+    IF r = 0 THEN
+        installment := loanAmount / n;
+    ELSE
+        installment := loanAmount * r * POWER(1 + r, n) / (POWER(1 + r, n) - 1);
+    END IF;
+    
+    RETURN ROUND(installment, 2);
+END;
+/
+
+
+
+SELECT CalculateMonthlyInstallment(100000, 8.5, 5) AS EMI FROM DUAL;

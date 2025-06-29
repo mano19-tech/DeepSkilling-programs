@@ -1,0 +1,31 @@
+SET SERVEROUTPUT ON;
+
+CREATE OR REPLACE FUNCTION HasSufficientBalance (
+    accID   NUMBER,
+    amount  NUMBER
+)
+RETURN BOOLEAN
+IS
+    accBalance NUMBER;
+BEGIN
+    SELECT Balance INTO accBalance FROM Accounts WHERE AccountID = accID;
+
+    RETURN accBalance >= amount;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN FALSE;
+END;
+/
+
+DECLARE
+    result BOOLEAN;
+BEGIN
+    result := HasSufficientBalance(101, 5000);
+
+    IF result THEN
+        DBMS_OUTPUT.PUT_LINE('Sufficient balance.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Insufficient balance.');
+    END IF;
+END;
+/

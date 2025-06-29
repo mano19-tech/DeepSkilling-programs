@@ -1,0 +1,50 @@
+SET SERVEROUTPUT ON;
+
+DROP TABLE Accounts;
+
+CREATE TABLE Accounts (
+    AccountID   NUMBER PRIMARY KEY,
+    CustomerID  NUMBER,
+    AccountType VARCHAR2(20),
+    Balance     NUMBER(10,2)
+);
+
+INSERT INTO Accounts VALUES (201, 101, 'Savings', 15000);
+INSERT INTO Accounts VALUES (202, 102, 'Savings', 8000);
+COMMIT;
+CREATE OR REPLACE PROCEDURE TransferFunds (
+    p_FromAccountID IN NUMBER,
+    p_ToAccountID   IN NUMBER,
+    p_Amount        IN NUMBER
+) IS
+    v_Balance NUMBER;
+BEGIN
+    SELECT Balance INTO v_Balance
+    FROM Accounts
+    WHERE AccountID = p_FromAccountID
+    FOR UPDATE;
+
+    IF v_Balance < p_Amount THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Insufficient funds');
+    END IF;
+
+    UPDATE Accounts
+    SET Balance = Balance - p_Amount
+    WHERE AccountID = p_FromAccountID;
+
+    UPDATE Accounts
+    SET Balance = Balance + p_Amount
+    WHERE AccountID = p_ToAccountID;
+
+    COMMIT;
+END;
+/
+
+
+BEGIN
+    TransferFunds(201, 202, 5000);
+END;
+/
+
+
+SELECT * FROM Accounts WHERE AccountID IN (201, 202);

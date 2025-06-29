@@ -1,0 +1,36 @@
+SET SERVEROUTPUT ON;
+
+DESC Customers;
+CREATE OR REPLACE TRIGGER CheckTransactionRules
+BEFORE INSERT ON Transactions
+FOR EACH ROW
+DECLARE
+  current_balance NUMBER;
+BEGIN
+  -- Get current balance of the customer
+  SELECT Balance INTO current_balance
+  FROM Customers
+  WHERE CustomerID = :NEW.CustomerID;
+
+  -- Check for deposit
+  IF :NEW.Type = 'DEPOSIT' THEN
+    IF :NEW.Amount <= 0 THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Deposit amount must be greater than zero.');
+    END IF;
+
+  -- Check for withdrawal
+  ELSIF :NEW.Type = 'WITHDRAWAL' THEN
+    IF :NEW.Amount <= 0 THEN
+      RAISE_APPLICATION_ERROR(-20002, 'Withdrawal amount must be positive.');
+    ELSIF :NEW.Amount > current_balance THEN
+      RAISE_APPLICATION_ERROR(-20003, 'Withdrawal amount exceeds current balance.');
+    END IF;
+  END IF;
+END;
+
+INSERT INTO Transactions (TransactionID, CustomerID, Amount, Type)
+VALUES (201, 1, 500, 'DEPOSIT');
+
+INSERT INTO Transactions (TransactionID, CustomerID, Amount, Type)
+VALUES (202, 1, 0, 'DEPOSIT');
+

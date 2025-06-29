@@ -1,0 +1,26 @@
+DROP TABLE AUDITLOG;
+
+CREATE TABLE AUDITLOG (
+  LogID         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  TransactionID NUMBER,
+  Operation     VARCHAR2(20),
+  LogDate       DATE
+);
+
+SELECT * FROM user_tables WHERE table_name = 'TRANSACTIONS';
+
+CREATE TABLE Transactions (
+  TransactionID NUMBER PRIMARY KEY,
+  CustomerID    NUMBER,
+  Amount        NUMBER,
+  Type          VARCHAR2(20)
+);
+
+CREATE OR REPLACE TRIGGER LogTransaction
+AFTER INSERT ON Transactions
+FOR EACH ROW
+BEGIN
+  INSERT INTO AUDITLOG (TransactionID, Operation, LogDate)
+  VALUES (:NEW.TransactionID, 'INSERT', SYSDATE);
+END;
+
