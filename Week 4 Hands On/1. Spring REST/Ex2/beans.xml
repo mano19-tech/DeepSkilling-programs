@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans
+          https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Constructor Injection -->
+    <bean id="student1" class="com.example.Student" scope="singleton">
+        <constructor-arg value="101"/>
+        <constructor-arg value="Dharnan"/>
+    </bean>
+
+    <!-- Setter Injection -->
+    <bean id="student2" class="com.example.Student" scope="prototype">
+        <constructor-arg index="0" value="102"/>
+        <constructor-arg index="1" value=""/>
+        <property name="id" value="102"/>
+        <property name="name" value="Vishva"/>
+    </bean>
+
+</beans>
